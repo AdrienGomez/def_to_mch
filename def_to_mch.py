@@ -1,5 +1,6 @@
 import bpy
 
+
 # This script duplicate selected bones in edit mode, add duplicate bones to the 'mch' bone collection, then add a Copy Transform constraint to the first selected bones with the duplicated bones as target.
 
 #bones must have 'def_' as suffix  in their names
@@ -11,25 +12,29 @@ import bpy
 #store selected bones
 bonesel = bpy.context.selected_editable_bones
 
+print("orginal selection is: "+str(bonesel))
 # create a fone name list for later
 bonenamelist = []
 
 #add selected bones names to list and rename them 
 for defbone in bonesel:
-    bonenamelist.append(defbone.name.replace('def', 'mch'))
-
+    bonenamelist.append(defbone.name.replace('def_', 'mch_'))
+print("bones' names are: "+str(bonenamelist))
 #Duplicate selected bones  
 bpy.ops.armature.duplicate_move()
+
 
 #store the duplicated bones
 newbonesel = bpy.context.selected_editable_bones
 
 #rename the duplicated bones
-for mchbone in newbonesel:
-    i=0
+i=0
+for mchbone in newbonesel:  
     mchbone.name = bonenamelist[i]
     i+=1
-    
+    print(mchbone.name)
+    print(i)
+
 #assign bones the duplicated bones to 'mch' Bone collections
 bpy.ops.armature.collection_assign(name="mch")
 #remove bones the duplicated bones from'def' Bone collections
@@ -55,6 +60,7 @@ bpy.ops.pose.select_all(action='DESELECT')
 for posebone in posebonesel:
     bpy.context.object.data.bones[posebone.name].select = True
     bpy.context.object.data.bones.active = bpy.context.object.data.bones[posebone.name]
+    print(bpy.context.object.data.bones.active)
     bpy.ops.pose.constraint_add(type='COPY_TRANSFORMS')
     posebone.constraints["Copy Transforms"].target = bpy.context.object
     posebone.constraints["Copy Transforms"].subtarget = posebone.name.replace('def', 'mch')
